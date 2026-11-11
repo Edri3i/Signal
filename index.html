@@ -4,17 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#060a13">
-<title>نبض بازار</title>
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Signal">
+<meta name="description" content="Signal: رادار پول هوشمند و فشار اهرمی">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Signal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#060a13;--card:rgba(255,255,255,.045);--line:rgba(255,255,255,.09);--tx:#e8eefc;--mut:#8a97b8;--g:#19e3a1;--r:#ff4d6d;--a:#ffc857;--v:#8b7bff;--c:#38d4ff;--rad:18px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0}
+html,body{margin:0;overscroll-behavior-y:contain}
+button,.sig,.chip{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 body{background:radial-gradient(900px 500px at 85% -10%,rgba(139,123,255,.2),transparent 60%),radial-gradient(800px 500px at 0% 10%,rgba(56,212,255,.13),transparent 60%),var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,"Segoe UI",system-ui,sans-serif;min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.7}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:36px 36px;-webkit-mask-image:radial-gradient(circle at 50% 15%,#000,transparent 75%);mask-image:radial-gradient(circle at 50% 15%,#000,transparent 75%)}
 body.lock{overflow:hidden}
-.wrap{position:relative;max-width:1100px;margin:0 auto;padding:10px 12px 40px}
+.wrap{position:relative;max-width:1100px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}
 .credit{direction:ltr;text-align:center;font-size:11px;letter-spacing:.14em;color:var(--mut);padding:6px 0 2px;font-family:"Segoe UI",system-ui,sans-serif}
 .credit b{background:linear-gradient(90deg,var(--c),var(--v),var(--g));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
 .bar{display:flex;align-items:center;gap:10px;padding:8px 0 10px}
@@ -22,9 +32,7 @@ body.lock{overflow:hidden}
 .ham span{display:block;width:20px;height:2px;border-radius:2px;background:var(--tx);transition:.25s}
 .ham:active{transform:scale(.94)}
 .brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-.logo{width:38px;height:38px;border-radius:12px;flex:none;background:conic-gradient(from 200deg,var(--c),var(--v),var(--g),var(--c));position:relative;box-shadow:0 0 24px rgba(139,123,255,.45)}
-.logo:after{content:"";position:absolute;inset:3px;border-radius:10px;background:#0a1020}
-.logo:before{content:"";position:absolute;z-index:2;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:var(--g);box-shadow:0 0 12px var(--g);animation:beat 1.6s ease-in-out infinite}
+.logo{width:44px;height:44px;border-radius:13px;flex:none;display:block;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 0 26px rgba(139,123,255,.5)}
 @keyframes beat{0%,100%{transform:scale(.7);opacity:.7}50%{transform:scale(1.15);opacity:1}}
 h1{margin:0;font-size:20px;font-weight:800;line-height:1.2}
 .brand p{margin:0;font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -47,7 +55,9 @@ h1{margin:0;font-size:20px;font-weight:800;line-height:1.2}
 .ch{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 0}
 .ch h2{margin:0;font-size:15px;font-weight:800}
 .hint{font-size:11px;color:var(--mut)}
-.net{position:relative;height:min(92vw,470px);min-height:350px}
+.net{position:relative;height:min(130vw,660px);min-height:440px}
+.inst{display:none;margin:0 0 10px;padding:10px 14px;border-radius:14px;border:1px solid rgba(139,123,255,.4);background:rgba(139,123,255,.1);font-size:12.5px;align-items:center;justify-content:space-between;gap:10px}
+.inst.on{display:flex}
 .net canvas{width:100%;height:100%;display:block;cursor:pointer}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:0 14px 12px;font-size:11.5px;color:var(--mut)}
 .legend span{display:flex;align-items:center;gap:6px}
@@ -139,9 +149,10 @@ input[type=range]{width:100%;accent-color:var(--v)}
   <div class="credit" dir="ltr">Written by <b>Ali Edrisi</b></div>
   <div class="bar">
     <button class="ham" id="menuBtn" aria-label="منو"><span></span><span></span><span></span></button>
-    <div class="brand"><div class="logo"></div><div><h1>نبض بازار</h1><p>رادار پول هوشمند و فشار اهرمی</p></div></div>
+    <div class="brand"><img class="logo" src="icon-192.png" alt="Signal" width="44" height="44"><div><h1>Signal</h1><p>رادار پول هوشمند و فشار اهرمی</p></div></div>
     <div class="pill" id="pill"><i></i><span id="pillTx">در حال اتصال</span></div>
   </div>
+  <div class="inst" id="instBar"><span>این ابزار را مثل یک برنامه روی گوشی نصب کنید.</span><button class="btn p" id="instBtn">نصب برنامه</button></div>
   <div class="banner" id="banner"><span id="bannerTx"></span><button class="btn" id="retry">تلاش دوباره</button></div>
 
   <div class="stats">
@@ -152,7 +163,7 @@ input[type=range]{width:100%;accent-color:var(--v)}
   </div>
 
   <section class="card">
-    <div class="ch"><h2>شبکه جریان داده</h2><span class="hint">روی هر ارز بزنید</span></div>
+    <div class="ch"><h2>شبکه جریان داده</h2><span class="hint" id="netHint">روی هر ارز بزنید</span></div>
     <div class="net"><canvas id="net"></canvas></div>
     <div class="legend" id="legend"></div>
   </section>
@@ -331,27 +342,31 @@ function onLiq(sym,side,usd,price){
 const cv=$('#net'),cx=cv.getContext('2d');
 let W=0,H=0,nodes=[],srcN=[],parts=[];
 function resize(){const r=cv.parentElement.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);layout()}
+const RINGS=[{n:16,f:.285,b:6,g:8},{n:24,f:.375,b:4.5,g:6},{n:40,f:.46,b:3,g:5}];
+const SRCF=.155;
+const logoImg=new Image();let logoOk=false;logoImg.onload=()=>{logoOk=true};logoImg.src='icon-192.png';
 function layout(){
- const x0=W/2,y0=H/2,list=S.list.slice(0,24);
- nodes=list.map((c,i)=>{const a=-Math.PI/2+i/list.length*Math.PI*2;return{c,a,x:x0+Math.cos(a)*W*.41,y:y0+Math.sin(a)*H*.40}});
- srcN=SRC.map((s,i)=>{const a=-Math.PI/2+i/SRC.length*Math.PI*2+.5;return Object.assign({},s,{x:x0+Math.cos(a)*W*.17,y:y0+Math.sin(a)*H*.17})});
+ const x0=W/2,y0=H/2;let idx=0;nodes=[];
+ RINGS.forEach((rg,ri)=>{for(let i=0;i<rg.n&&idx<S.list.length;i++,idx++){
+  const a=-Math.PI/2+(i+(ri%2?.5:0))/rg.n*Math.PI*2;
+  nodes.push({c:S.list[idx],a,ri,rg,x:x0+Math.cos(a)*W*rg.f,y:y0+Math.sin(a)*H*rg.f})}});
+ srcN=SRC.map((s,i)=>{const a=-Math.PI/2+i/SRC.length*Math.PI*2+.45;return Object.assign({},s,{x:x0+Math.cos(a)*W*SRCF,y:y0+Math.sin(a)*H*SRCF})});
 }
 function edgeV(c,k){const s=c.sig;if(!s)return 0;if(k==='unlock')return s.pen?s.pen/15:0;const v=s.f[k];return v?v[s.d]:0}
-function spawn(s,n){if(parts.length>170||!s||!n)return;parts.push({s,n,t:0,sp:.007+Math.random()*.01,off:(Math.random()-.5)*50})}
+function spawn(s,n){if(parts.length>130||!s||!n)return;parts.push({s,n,t:0,sp:.007+Math.random()*.01,off:(Math.random()-.5)*50})}
 function pulse(sym,k){const n=nodes.find(x=>x.c.sym===sym),s=srcN.find(x=>x.k===k);if(n&&s)spawn(s,n)}
 function pickNode(){let t=0;const ws=nodes.map(n=>{const w=(n.c.sig?n.c.sig.score:0)+6;t+=w;return w});let r=Math.random()*t;for(let i=0;i<nodes.length;i++){r-=ws[i];if(r<=0)return nodes[i]}return nodes[0]}
 function pickSrc(n){let t=0;const ws=SRC.map(s=>{const v=edgeV(n.c,s.k);t+=v;return v});if(t<.15)return null;let r=Math.random()*t;for(let i=0;i<SRC.length;i++){r-=ws[i];if(r<=0)return srcN[i]}return null}
 function frame(){
  requestAnimationFrame(frame);
- if(document.hidden||!W||!nodes.length)return;
+ if(document.hidden||!W||!nodes.length||document.body.classList.contains('lock'))return;
  const t=performance.now()/1000,x0=W/2,y0=H/2,rr=Math.min(W,H);
  cx.clearRect(0,0,W,H);
  const g=cx.createRadialGradient(x0,y0,0,x0,y0,rr*.22);g.addColorStop(0,'rgba(139,123,255,.30)');g.addColorStop(1,'rgba(139,123,255,0)');
  cx.fillStyle=g;cx.beginPath();cx.arc(x0,y0,rr*.22,0,7);cx.fill();
  cx.strokeStyle='rgba(255,255,255,.05)';cx.lineWidth=1;
- cx.beginPath();cx.ellipse(x0,y0,W*.41,H*.40,0,0,7);cx.stroke();
- cx.beginPath();cx.ellipse(x0,y0,W*.17,H*.17,0,0,7);cx.stroke();
- for(const n of nodes)for(const s of srcN){const v=edgeV(n.c,s.k);cx.globalAlpha=.03+.45*v;cx.strokeStyle=s.c;cx.lineWidth=.6+1.4*v;cx.beginPath();cx.moveTo(s.x,s.y);cx.lineTo(n.x,n.y);cx.stroke()}
+ for(const f of [SRCF].concat(RINGS.map(r=>r.f))){cx.beginPath();cx.ellipse(x0,y0,W*f,H*f,0,0,7);cx.stroke()}
+ for(const n of nodes)for(const s of srcN){const v=edgeV(n.c,s.k);if(n.ri>0&&v<.12)continue;cx.globalAlpha=.03+.45*v;cx.strokeStyle=s.c;cx.lineWidth=.6+1.4*v;cx.beginPath();cx.moveTo(s.x,s.y);cx.lineTo(n.x,n.y);cx.stroke()}
  cx.globalAlpha=1;
  if(Math.random()<.4){const n=pickNode(),s=n&&pickSrc(n);if(s)spawn(s,n)}
  for(let i=parts.length-1;i>=0;i--){
@@ -368,22 +383,23 @@ function frame(){
   cx.beginPath();cx.arc(s.x,s.y,7*pu,0,7);cx.fill();cx.shadowBlur=0;
   cx.fillStyle='rgba(232,238,252,.85)';cx.fillText(s.n,s.x,s.y+20);
  }
- cx.font='800 11px Vazirmatn,Tahoma,sans-serif';cx.fillStyle='rgba(232,238,252,.9)';cx.fillText('نبض',x0,y0+4);
- cx.font='700 9.5px "Segoe UI",system-ui,sans-serif';
+ if(logoOk){const lp=1+.04*Math.sin(t*1.6),ls=34*lp;cx.save();cx.shadowColor='#8b7bff';cx.shadowBlur=18;cx.beginPath();cx.roundRect?cx.roundRect(x0-ls/2,y0-ls/2,ls,ls,9):cx.rect(x0-ls/2,y0-ls/2,ls,ls);cx.clip();cx.drawImage(logoImg,x0-ls/2,y0-ls/2,ls,ls);cx.restore()}
+ else{cx.font='800 11px "Segoe UI",system-ui,sans-serif';cx.fillStyle='rgba(232,238,252,.9)';cx.fillText('Signal',x0,y0+4)}
  for(const n of nodes){
-  const c=n.c,s=c.sig,sc=s?s.score:0,col=!s||s.level==='none'?'#6b7aa3':s.d===0?'#19e3a1':'#ff4d6d',r=6+8*sc/100;
+  const c=n.c,s=c.sig,sc=s?s.score:0,col=!s||s.level==='none'?'#6b7aa3':s.d===0?'#19e3a1':'#ff4d6d',r=n.rg.b+n.rg.g*sc/100;
+  cx.font=(n.ri===0?'700 9.5px':'700 8.5px')+' "Segoe UI",system-ui,sans-serif';
   if(s&&s.level!=='none'){cx.shadowColor=col;cx.shadowBlur=s.level==='strong'?24:12}
   cx.fillStyle=col;cx.globalAlpha=s&&s.level!=='none'?1:.7;
   cx.beginPath();cx.arc(n.x,n.y,r,0,7);cx.fill();cx.shadowBlur=0;cx.globalAlpha=1;
   if(s&&s.level==='strong'){cx.strokeStyle=col;cx.globalAlpha=.55*(1-((t*.8)%1));cx.lineWidth=1.5;cx.beginPath();cx.arc(n.x,n.y,r+4+((t*.8)%1)*12,0,7);cx.stroke();cx.globalAlpha=1}
   if(S.selected===c.sym){cx.strokeStyle='#fff';cx.lineWidth=1.5;cx.beginPath();cx.arc(n.x,n.y,r+4,0,7);cx.stroke()}
-  cx.fillStyle='rgba(232,238,252,.9)';cx.fillText(c.base.slice(0,6),n.x,n.y+r+11);
+  if(n.ri===0||(s&&s.level!=='none')||S.selected===c.sym){cx.fillStyle='rgba(232,238,252,.9)';cx.fillText(c.base.slice(0,6),n.x,n.y+r+10)}
  }
 }
 cv.addEventListener('click',e=>{
  const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=1e9;
  for(const n of nodes){const d=Math.hypot(n.x-x,n.y-y);if(d<bd){bd=d;best=n}}
- if(best&&bd<30)openSheet(best.c.sym);
+ if(best&&bd<24)openSheet(best.c.sym);
 });
 new ResizeObserver(resize).observe(cv.parentElement);
 
@@ -470,8 +486,10 @@ function drawLiq(c,q){
  const now=Date.now();
  for(const e of c.liq){if(now-e.t>6e5||e.p<m.lo||e.p>m.hi)continue;ctx.fillStyle=e.long?'#ff4d6d':'#19e3a1';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(w-10,y(e.p),clamp(Math.sqrt(e.u)/90,2,8),0,7);ctx.fill();ctx.shadowBlur=0}
 }
-function openSheet(sym){S.selected=sym;renderSheet();$('#sheet').classList.add('on');$('#scrim').classList.add('on');document.body.classList.add('lock')}
-function closeAll(){S.selected=null;$('#sheet').classList.remove('on');$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');document.body.classList.remove('lock')}
+function pushOpen(){try{if(!(history.state&&history.state.o))history.pushState({o:1},'')}catch(e){}}
+function openSheet(sym){S.selected=sym;renderSheet();$('#sheet').classList.add('on');$('#scrim').classList.add('on');document.body.classList.add('lock');pushOpen()}
+function closeAll(fromPop){S.selected=null;$('#sheet').classList.remove('on');$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');document.body.classList.remove('lock');try{if(fromPop!==true&&history.state&&history.state.o)history.back()}catch(e){}}
+window.addEventListener('popstate',()=>closeAll(true));
 
 /* ---------- drawer ---------- */
 let drawerBuilt=false;
@@ -496,6 +514,8 @@ function renderDrawer(){
 }
 function buildDrawer(){
  $('#dbody').innerHTML=`
+ <details><summary>نصب روی گوشی</summary><div class="dc"><div class="note">۱. این صفحه را در مرورگر کروم گوشی باز کنید.<br>۲. روی منوی سه‌نقطه بالای صفحه بزنید.<br>۳. گزینه «نصب برنامه» یا «افزودن به صفحه اصلی» را انتخاب کنید و تأیید کنید.<br>۴. آیکون Signal روی صفحه گوشی می‌نشیند و مثل یک برنامه، تمام‌صفحه باز می‌شود.</div>
+  <button class="btn p" id="d-inst" style="margin-top:8px">نصب برنامه</button></div></details>
  <details open><summary>اتصال و منبع داده</summary><div class="dc">
   <div class="note">اگر بایننس از اینترنت شما باز نمی‌شود، آدرس یک پروکسی خودتان را اینجا بگذارید یا وی‌پی‌ان را روشن کنید.</div>
   <label class="note">آدرس رابط برنامه‌نویسی</label><input type="text" id="i-base" value="${S.base}">
@@ -512,6 +532,7 @@ function buildDrawer(){
   <button class="btn p" id="u-add">افزودن</button></div></details>
  <details><summary>وزن هر عامل در امتیاز</summary><div class="dc">${KEYS.map(k=>`<div class="row"><span>${LBL[k]}</span><b id="wv-${k}">${S.weights[k]}</b></div><input type="range" min="0" max="50" value="${S.weights[k]}" data-w="${k}">`).join('')}</div></details>
  <details><summary>روش محاسبه و محدودیت‌ها</summary><div class="dc"><div class="note">امتیاز هر ارز میانگین وزنی پنج عامل است. سیگنال قوی یعنی امتیاز بالای ۵۵ با دست‌کم سه عامل هم‌جهت. نهنگ‌ها یعنی معاملات درشت در بازار آتی بایننس، نه حرکت‌های روی زنجیره. عامل هایپرلیکوید از معاملات درشت آن صرافی و موقعیت باز بزرگ‌ترین کیف‌پول‌ها ساخته می‌شود؛ این کیف‌پول‌ها لزوماً «هوشمند» نیستند و فقط درشت‌اند. نقشه تصفیه تخمینی است و داده واقعی صرافی نیست. ورود، حد ضرر و اهداف بر اساس نوسان اخیر و خوشه‌های تصفیه محاسبه می‌شوند. هیچ سیگنالی سود را تضمین نمی‌کند.</div></div></details>`;
+ $('#d-inst').onclick=()=>{if(deferred)$('#instBtn').click();else alert('از منوی سه‌نقطه مرورگر، گزینه نصب برنامه یا افزودن به صفحه اصلی را بزنید.')};
  $('#b-save').onclick=()=>{S.base=$('#i-base').value.trim()||'https://fapi.binance.com';S.ws=$('#i-ws').value.trim()||'wss://fstream.binance.com';save();boot()};
  $('#u-add').onclick=()=>{const s=$('#u-sym').value.trim().toUpperCase(),d=$('#u-date').value;if(!s||!d)return;S.unlocks.push({sym:s,date:d,note:$('#u-note').value.trim()});save();S.list.forEach(refresh);renderDrawer()};
  $('#dbody').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(b){S.unlocks.splice(+b.dataset.del,1);save();S.list.forEach(refresh);renderDrawer()}});
@@ -600,9 +621,9 @@ async function scanCoin(c){
 async function scanLoop(g){
  while(g===gen){
   const q=S.list.slice();let i=0;
-  await Promise.all(Array.from({length:4},async()=>{while(i<q.length&&g===gen){await scanCoin(q[i++])}}));
+  await Promise.all(Array.from({length:5},async()=>{while(i<q.length&&g===gen){await scanCoin(q[i++])}}));
   log('یک دور بررسی کامل شد');
-  await sleep(120000);
+  await sleep(150000);
  }
 }
 function connectWS(g){
@@ -642,7 +663,7 @@ async function startLive(){
  const g=gen,ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),9000);
  let t;try{t=await jget(F()+'/fapi/v1/ticker/24hr',ctl.signal)}finally{clearTimeout(to)}
  const STB=/^(USDC|FDUSD|TUSD|BUSD|USDP|DAI|EUR|AEUR|USDE)/;
- const top=t.filter(x=>/USDT$/.test(x.symbol)&&!STB.test(x.symbol)).sort((a,b)=>b.quoteVolume-a.quoteVolume).slice(0,40);
+ const top=t.filter(x=>/USDT$/.test(x.symbol)&&!STB.test(x.symbol)).sort((a,b)=>b.quoteVolume-a.quoteVolume).slice(0,80);
  if(!top.length)throw new Error('لیست خالی');
  S.coins={};S.list=top.map(x=>{const c=mk(x.symbol);c.price=+x.lastPrice;c.chg=+x.priceChangePercent;c.vol=+x.quoteVolume;S.coins[c.sym]=c;return c});
  setStatus('live');log('اتصال به بایننس برقرار شد');
@@ -661,7 +682,7 @@ function synthK(price){
 }
 function startDemo(){
  stopAll();const g=gen;setStatus('demo');
- const names=['BTC','ETH','SOL','BNB','XRP','DOGE','ADA','AVAX','LINK','TON','DOT','TRX','SUI','APT','ARB','OP','NEAR','INJ','ATOM','LTC','FIL','AAVE','UNI','PEPE','WIF','SEI','TIA','RUNE','FET','ENA'];
+ const names=['BTC','ETH','SOL','BNB','XRP','DOGE','ADA','AVAX','LINK','TON','DOT','TRX','SUI','APT','ARB','OP','NEAR','INJ','ATOM','LTC','FIL','AAVE','UNI','PEPE','WIF','SEI','TIA','RUNE','FET','ENA','BCH','ETC','XLM','HBAR','ICP','RENDER','IMX','STX','ALGO','VET','MKR','LDO','CRV','SAND','MANA','AXS','GALA','THETA','KAVA','COMP','SNX','1INCH','DYDX','JUP','PYTH','STRK','ONDO','WLD','ORDI','BLUR','ENS','CHZ','GMT','ZRO','PENDLE','TAO','ARKM','TRB','MINA','ROSE','ZEC','DASH','XTZ','IOTA','NEO','QTUM','EGLD','FLOW','GRT','AR'];
  S.coins={};S.list=names.map((n,i)=>{
   const c=mk(n+'USDT');c.price=i===0?68000:i===1?3400:Math.exp(Math.random()*6-1.5);c.vol=6e9/Math.pow(i+1,1.15);c.chg=(Math.random()-.5)*8;
   c.fund=(Math.random()-.5)*.0012;c.oiChg=(Math.random()-.35)*7;c.taker=.82+Math.random()*.4;
@@ -692,8 +713,17 @@ async function boot(){
  try{await startLive()}catch(e){log('اتصال زنده ناموفق: '+e.message);startDemo()}
  loadStable();loadUnlocks();
 }
-$('#menuBtn').onclick=()=>{renderDrawer();$('#drawer').classList.add('on');$('#scrim').classList.add('on');document.body.classList.add('lock')};
-$('#closeD').onclick=closeAll;$('#scrim').onclick=closeAll;
+$('#menuBtn').onclick=()=>{renderDrawer();$('#drawer').classList.add('on');$('#scrim').classList.add('on');document.body.classList.add('lock');pushOpen()};
+$('#closeD').onclick=()=>closeAll();$('#scrim').onclick=()=>closeAll();
+
+/* ---------- app mode (install) ---------- */
+let deferred=null;
+const standalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!standalone())$('#instBar').classList.add('on')});
+$('#instBtn').onclick=async()=>{if(!deferred)return;deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;$('#instBar').classList.remove('on')};
+window.addEventListener('appinstalled',()=>$('#instBar').classList.remove('on'));
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(standalone())$('#netHint').textContent='روی هر ارز بزنید';
 $('#retry').onclick=boot;
 document.addEventListener('click',e=>{
  if(e.target.id==='closeS'){closeAll();return}
