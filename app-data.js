@@ -41,18 +41,18 @@
   const S = (SG.S = {
     mode: 'init', modeT: 0, weights: Object.assign({}, E.DEFAULT_W), thresh: 40,
     base: 'https://fapi.binance.com', ws: 'wss://fstream.binance.com', unlocks: [],
-    feedCat: 'all', feedTy: 'all', histCat: 'all', histDir: 'all', histSt: 'all',
+    nOn: false, nMin: 50, nDir: 'both', feedCat: 'all', feedTy: 'all', histCat: 'all', histDir: 'all', histSt: 'all',
     src: {}, env: null, stable7: null, stable1: null, stableTotal: null, liq: [], hlW: {}, hlPos: {}, tab: 'net', lastRank: 0
   });
   (function loadCfg() {
     const c = LS.get('sig.cfg', {});
-    for (const k of ['thresh', 'base', 'ws', 'unlocks', 'feedCat', 'feedTy', 'histCat', 'histDir', 'histSt']) if (c[k] != null) S[k] = c[k];
+    for (const k of ['nOn', 'nMin', 'nDir', 'thresh', 'base', 'ws', 'unlocks', 'feedCat', 'feedTy', 'histCat', 'histDir', 'histSt']) if (c[k] != null) S[k] = c[k];
     if (c.weights) Object.assign(S.weights, c.weights);
     SG.hist = LS.get('sig.hist', []);
     SG.feed = LS.get('sig.feed', []);
   })();
   let tCfg = 0, tHist = 0, tFeed = 0;
-  SG.saveCfg = () => { clearTimeout(tCfg); tCfg = setTimeout(() => LS.set('sig.cfg', { thresh: S.thresh, base: S.base, ws: S.ws, unlocks: S.unlocks, weights: S.weights, feedCat: S.feedCat, feedTy: S.feedTy, histCat: S.histCat, histDir: S.histDir, histSt: S.histSt }), 300); };
+  SG.saveCfg = () => { clearTimeout(tCfg); tCfg = setTimeout(() => LS.set('sig.cfg', { nOn: S.nOn, nMin: S.nMin, nDir: S.nDir, thresh: S.thresh, base: S.base, ws: S.ws, unlocks: S.unlocks, weights: S.weights, feedCat: S.feedCat, feedTy: S.feedTy, histCat: S.histCat, histDir: S.histDir, histSt: S.histSt }), 300); };
   SG.saveHist = () => { clearTimeout(tHist); tHist = setTimeout(() => { if (S.mode === 'demo') return; SG.hist = E.prune(SG.hist, Date.now()); LS.set('sig.hist', SG.hist); }, 1500); };
   SG.saveFeed = () => { clearTimeout(tFeed); tFeed = setTimeout(() => { if (S.mode !== 'demo') LS.set('sig.feed', SG.feed.slice(0, 600)); }, 2500); };
   const flushAll = () => { if (S.mode === 'demo') return; LS.set('sig.hist', E.prune(SG.hist, Date.now())); LS.set('sig.feed', SG.feed.slice(0, 600)); };
@@ -341,7 +341,7 @@
     fresh.slice(0, firstScore ? 8 : 12).forEach(({ a, rec }) => addEv({
       cat: a.cat, ty: 'sig', sym: a.t, txt: 'سیگنال ' + (rec.dir > 0 ? 'خرید' : 'فروش') + ' جدید با امتیاز ' + rec.sc + ' · قیمت ' + SG.fmtP(rec.e), col: rec.dir > 0 ? '#19e3a1' : '#ff4d6d', t: rec.t
     }));
-    if (fresh.length) SG.emit('hist');
+    if (fresh.length) { SG.emit('hist'); if (!firstScore) SG.emit('newsig', fresh.map(f => f.rec)); }
     firstScore = false;
   }
   function onTarget(rec, kind) {

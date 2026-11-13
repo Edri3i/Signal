@@ -288,10 +288,21 @@
       <div class="note" style="margin-top:10px">وزن هر عامل در امتیاز</div>${E.KEYS.map(k => `<div class="row2"><span>${LBL[k]}</span><b id="wv-${k}">${S.weights[k]}</b></div><input type="range" min="0" max="40" value="${S.weights[k]}" data-w="${k}">`).join('')}</div></details>
     <details><summary>نهنگ‌های هایپرلیکوید</summary><div class="dc"><div class="note">کیف‌پول‌هایی که معاملات درشت انجام داده‌اند، از شروع اجرای برنامه.</div><table class="tbl" id="d-hl"></table></div></details>
     <details><summary>تقویم آزادسازی توکن‌ها</summary><div class="dc"><div id="d-unl"></div><div class="note" style="margin-top:8px">افزودن دستی (نماد، تاریخ، توضیح)</div><input type="text" id="u-sym" placeholder="مثلاً ARB"><input type="date" id="u-date"><input type="text" id="u-note" placeholder="توضیح کوتاه"><button class="btn p" id="u-add">افزودن</button></div></details>
+    <details><summary>اعلان‌ها</summary><div class="dc"><div class="row2"><span>دریافت اعلان سیگنال جدید</span><button class="btn" id="n-on"></button></div>
+      <div class="row2"><span>حداقل امتیاز برای اعلان</span><b id="n-v">${S.nMin}</b></div><input type="range" min="50" max="95" step="5" value="${S.nMin}" id="n-r">
+      <div class="note">نوع سیگنال</div><div class="chips" id="n-dir"></div>
+      <button class="btn" id="n-test">ارسال اعلان آزمایشی</button><div class="note" id="n-st"></div>
+      <div class="note">اعلان فقط وقتی برنامه باز است یا در پس‌زمینه گوشی زنده مانده است می‌رسد. اگر برنامه کاملاً بسته شود یا گوشی آن را متوقف کند، چیزی نمی‌رسد. برای بهتر شدن، در تنظیمات گوشی صرفه‌جویی باتری را برای Signal غیرفعال کنید.</div></div></details>
     <details><summary>تنظیمات سیگنال و حافظه</summary><div class="dc"><div class="row2"><span>حداقل امتیاز برای ثبت در تاریخچه</span><b id="th-v">${S.thresh}</b></div><input type="range" min="30" max="70" value="${S.thresh}" id="th-r"><div class="note" id="d-store"></div>
       <div class="row2"><button class="btn" id="b-exp">خروجی تاریخچه</button><button class="btn" id="b-clr">پاک‌کردن تاریخچه</button></div></div></details>
     <details><summary>اتصال و آدرس‌ها</summary><div class="dc"><div class="note">اگر بایننس از اینترنت شما باز نمی‌شود، آدرس پروکسی خودتان را اینجا بگذارید یا فیلترشکن را روشن کنید.</div><label class="note">آدرس رابط برنامه‌نویسی</label><input type="text" id="i-base" value="${S.base}"><label class="note">آدرس جریان زنده</label><input type="text" id="i-ws" value="${S.ws}"><button class="btn p" id="b-save">ذخیره و اتصال دوباره</button></div></details>
     <details><summary>روش محاسبه و محدودیت‌ها</summary><div class="dc"><div class="note">امتیاز هر دارایی میانگین وزنی شش عامل است: فشار خرید و فروش، مومنتوم، فیلتر فنی، پول هوشمند، اهرم و نقدینگی کلان. عامل‌هایی که برای یک دارایی داده ندارند کنار گذاشته می‌شوند. سیگنال قوی یعنی امتیاز بالای ۵۵ با دست‌کم سه عامل هم‌جهت. ورود، حد ضرر و اهداف از نوسان روزانه محاسبه می‌شوند. داده سهام و بازارهای جهانی با تأخیر چند دقیقه‌ای به‌روز می‌شود. تاریخچه فقط وقتی ثبت می‌شود که برنامه باز باشد. هیچ سیگنالی سود را تضمین نمی‌کند.</div></div></details>`;
+    const nDir = () => chipRow($('#n-dir'), [['both', 'خرید و فروش'], ['buy', 'فقط خرید'], ['sell', 'فقط فروش']], () => S.nDir, v => { S.nDir = v; SG.saveCfg(); nDir(); });
+    const nBtn = async () => { const g = await notifPerm(false); $('#n-on').textContent = S.nOn ? 'روشن' : 'خاموش'; $('#n-on').classList.toggle('p', S.nOn); $('#n-st').textContent = S.nOn && !g ? 'اجازه اعلان داده نشده است. در تنظیمات گوشی اجازه دهید.' : ''; };
+    nDir(); nBtn();
+    $('#n-on').onclick = async () => { S.nOn = !S.nOn; if (S.nOn) await notifPerm(true); SG.saveCfg(); nBtn(); };
+    $('#n-r').oninput = e => { S.nMin = +e.target.value; $('#n-v').textContent = S.nMin; SG.saveCfg(); };
+    $('#n-test').onclick = async () => { if (await notifPerm(true)) notify('Signal', 'اعلان آزمایشی: همه چیز درست است', 'test'); else $('#n-st').textContent = 'اجازه اعلان داده نشده است.'; };
     $('#d-inst').onclick = async () => { if (deferred) { deferred.prompt(); try { await deferred.userChoice; } catch (e) { } deferred = null; } else alert(standalone() ? 'برنامه همین حالا نصب است.' : 'از منوی سه‌نقطه مرورگر گزینه نصب برنامه را بزنید.'); };
     $('#b-save').onclick = () => { S.base = $('#i-base').value.trim() || 'https://fapi.binance.com'; S.ws = $('#i-ws').value.trim() || 'wss://fstream.binance.com'; SG.saveCfg(); location.reload(); };
     $('#u-add').onclick = () => { const s = $('#u-sym').value.trim().toUpperCase(), d = $('#u-date').value; if (!s || !d) return; S.unlocks.push({ sym: s, date: d, note: $('#u-note').value.trim() }); SG.saveCfg(); renderDrawer(); };
@@ -303,6 +314,37 @@
   }
   $('#menuBtn').onclick = () => { renderDrawer(); $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); document.body.classList.add('lock'); pushOverlay(); };
   SG.on('log', () => { const l = $('#logBox'); if (l && $('#drawer').classList.contains('on')) l.textContent = SG.logs.join('\n'); });
+
+
+  /* ------------------------------------------------------------ notifications */
+  const CAP = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
+  let nid = Math.floor(Date.now() / 1000) % 1000000;
+  async function notifPerm(ask) {
+    try {
+      const ln = CAP();
+      if (ln) { let p = await ln.checkPermissions(); if (p.display !== 'granted' && ask) p = await ln.requestPermissions(); return p.display === 'granted'; }
+      if (!('Notification' in window)) return false;
+      if (Notification.permission === 'default' && ask) await Notification.requestPermission();
+      return Notification.permission === 'granted';
+    } catch (e) { return false; }
+  }
+  async function notify(title, body, tag) {
+    try {
+      const ln = CAP();
+      if (ln) { await ln.schedule({ notifications: [{ id: ++nid, title, body }] }); return; }
+      const reg = navigator.serviceWorker && (await navigator.serviceWorker.getRegistration());
+      if (reg && reg.showNotification) reg.showNotification(title, { body, tag, icon: 'icon-192.png', badge: 'icon-192.png', dir: 'rtl', lang: 'fa' });
+      else new Notification(title, { body, tag, icon: 'icon-192.png' });
+    } catch (e) { }
+  }
+  SG.on('newsig', async recs => {
+    if (!S.nOn) return;
+    const ok = recs.filter(r => Math.abs(r.sc) >= S.nMin && (S.nDir === 'both' || (S.nDir === 'buy' ? r.dir > 0 : r.dir < 0)));
+    if (!ok.length || !(await notifPerm(false))) return;
+    ok.sort((a, b) => Math.abs(b.sc) - Math.abs(a.sc));
+    ok.slice(0, 3).forEach(r => notify('Signal · ' + (r.d || r.sym), (r.dir > 0 ? 'سیگنال خرید' : 'سیگنال فروش') + ' با امتیاز ' + Math.abs(r.sc) + ' · قیمت ' + fmtP(r.e), r.k));
+    if (ok.length > 3) notify('Signal', (ok.length - 3) + ' سیگنال دیگر هم ثبت شد', 'more');
+  });
 
   /* --------------------------------------------------------------------- boot */
   let lastRank = 0;
