@@ -41,6 +41,7 @@ jobs:
             cp "$GITHUB_WORKSPACE/icon-512.png" "$d/ic_launcher_round.png"
             cp "$GITHUB_WORKSPACE/icon-512.png" "$d/ic_launcher_foreground.png"
           done
+          sed -i 's#<application#<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <application#' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:allowBackup="true"/android:allowBackup="true" android:usesCleartextTraffic="false"/' android/app/src/main/AndroidManifest.xml
       - name: Build debug APK
         working-directory: /tmp/app/android
